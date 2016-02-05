@@ -1,6 +1,7 @@
 #! /bin/bash
 
 cd /home/test/kafka
+screen -A -D -m "bin/zookeeper-server-start.sh config/zookeeper.properties"
 screen -A -D -m "bin/kafka-server-start.sh config/server.properties"
 screen -A -D -m "bin/kafka-server-start.sh config/server-1.properties"
 screen -A -D -m "bin/kafka-server-start.sh config/server-2.properties"

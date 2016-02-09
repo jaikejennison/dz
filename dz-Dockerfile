@@ -11,71 +11,27 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Update sources
 RUN apt-get -y update && apt-get -y install \
- ca-certificates \
  curl \
- default-jre \
  git-core \
- screen \
  zookeeperd
 
-# Configure user
+# Configure user and Make Kafka Directory
 RUN groupadd test \
-&& useradd test -m -g test -s /bin/bash \
-&& passwd -d -u test \
-&& echo "test ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/test \
-&& chmod 0440 /etc/sudoers.d/test \
-&& mkdir /home/test/kafka \
-&& chown test:test /home/test/kafka
+  && useradd test -m -g test -s /bin/bash \
+  && passwd -d -u test \
+  && echo "test ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/test \
+  && chmod 0440 /etc/sudoers.d/test \
+  && mkdir /home/test/kafka \
+  && chown test:test /home/test/kafka
 
 # Install Kafka
-RUN cd /home/test && curl -O http://mirror.symnds.com/software/Apache/kafka/0.9.0.0/kafka_2.11-0.9.0.0.tgz \
- && tar -xvf kafka_2.11-0.9.0.0.tgz -C kafka --strip-components 1
-
-# Configure Kafka Servers & sample log
-RUN echo 'broker.id=1 \
-Listeners=PLAINTEXT://:9093 \
-port=9093 \
-num.network.threads=3 \
-num.io.threads=8 \
-socket.send.buffer.bytes=102400 \
-socket.receive.buffer.bytes=102400 \
-socket.request.max.bytes=104857600 \
-log.dir=/tmp/kafka-logs-1 \
-num.partitions=1 \
-num.recovery.threads.per.data.dir=1 \
-log.retention.hours=168 \
-log.segment.bytes=1073741824 \
-log.retention.check.interval.ms=300000 \
-log.cleaner.enable=false \
-zookeeper.connect=localhost:2181 \
-zookeeper.connection.timeout.ms=6000' > /home/test/kafka/config/server-1.properties \
-&& echo 'broker.id=1 \
-Listeners=PLAINTEXT://:9094 \
-port=9094 \
-num.network.threads=3 \
-num.io.threads=8 \
-socket.send.buffer.bytes=102400 \
-socket.receive.buffer.bytes=102400 \
-socket.request.max.bytes=104857600 \
-log.dir=/tmp/kafka-logs-2 \
-num.partitions=1 \
-num.recovery.threads.per.data.dir=1 \
-log.retention.hours=168 \
-log.segment.bytes=1073741824 \
-log.retention.check.interval.ms=300000 \
-log.cleaner.enable=false \
-zookeeper.connect=localhost:2181 \
-zookeeper.connection.timeout.ms=6000' > /home/test/kafka/config/server-2.properties \
-&& cd /home/test/kafka && echo '--- \
-level: Info \
-message: openssl version = OpenSSL 1.0.2d 9 Jul 2015 \
-pid: 4896 \
-service: Spinner \
-type: LogThirdParty \
-version: OpenSSL 1.0.2d 9 Jul 2015 \
-when: 2016-01-22T20:19:05.977Z \
-who: alp-cc-1-PC \
----' > test.txt
+RUN cd /home/test \
+  && curl -O http://mirror.symnds.com/software/Apache/kafka/0.9.0.0/kafka_2.11-0.9.0.0.tgz \
+  && tar -xvf kafka_2.11-0.9.0.0.tgz -C /home/test/kafka --strip-components 1 \
+  && curl -O http://hostedops-resources.s3.amazonaws.com/server-jre/server-jre-8u45-linux-x64.tar.gz \
+  && tar -xf server-jre-8u45-linux-x64.tar -C /opt \
+  && rm server-jre-8u45-linux-x64.tar \
+  && ln -s /opt/jdk1.8.0_45/bin/java /usr/bin/java
 
 # Initalize & Start Servers
 RUN cd /home/test \
@@ -96,6 +52,8 @@ WORKDIR /home/test/kafka
 ## DynamoDb-Local : 8005
 ## Consumer Port  : 9092
 ## Topics Port    : 2181
+## Default Port   : 9000
+## Devel Port     : 9999
 
 EXPOSE 9092
 EXPOSE 2181

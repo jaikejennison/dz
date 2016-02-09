@@ -13,7 +13,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get -y update && apt-get -y install \
  curl \
  git-core \
- zookeeperd
+ #zookeeperd
 
 # Configure user and Make Kafka Directory
 RUN groupadd test \
@@ -26,21 +26,21 @@ RUN groupadd test \
 
 # Install Kafka
 RUN cd /home/test \
-  && curl -O http://mirror.symnds.com/software/Apache/kafka/0.9.0.0/kafka_2.11-0.9.0.0.tgz \
-  && tar -xvf kafka_2.11-0.9.0.0.tgz -C /home/test/kafka --strip-components 1 \
+  #&& curl -O http://mirror.symnds.com/software/Apache/kafka/0.9.0.0/kafka_2.11-0.9.0.0.tgz \
+  #&& tar -xvf kafka_2.11-0.9.0.0.tgz -C /home/test/kafka --strip-components 1 \
   && curl -O http://hostedops-resources.s3.amazonaws.com/server-jre/server-jre-8u45-linux-x64.tar.gz \
   && tar -xf server-jre-8u45-linux-x64.tar -C /opt \
   && rm server-jre-8u45-linux-x64.tar \
   && ln -s /opt/jdk1.8.0_45/bin/java /usr/bin/java
 
 # Initalize & Start Servers
-RUN cd /home/test \
-  && git clone https://github.com/jaikejennison/dz.git \
-  && cp /home/test/dz/dz-server-start.sh /home/test/kafka/dz-server-start.sh \
-  && cp /home/test/dz/dz-client-start.sh /home/test/kafka/dz-client-start.sh \
-  && cd /home/test/kafka && chmod +x dz-server-start.sh && chmod +x dz-client-start.sh \
-  && ./dz-server-start.sh
-CMD ["/home/test/kafka/bin/kafka-console-consumer.sh", "--zookeeper localhost:2181", "--topic connect-test", "--from-beginning"]
+#RUN cd /home/test \
+#  && git clone https://github.com/jaikejennison/dz.git \
+#  && cp /home/test/dz/dz-server-start.sh /home/test/kafka/dz-server-start.sh \
+#  && cp /home/test/dz/dz-client-start.sh /home/test/kafka/dz-client-start.sh \
+#  && cd /home/test/kafka && chmod +x dz-server-start.sh && chmod +x dz-client-start.sh \
+#  && ./dz-server-start.sh
+#CMD ["/home/test/kafka/bin/kafka-console-consumer.sh", "--zookeeper localhost:2181", "--topic connect-test", "--from-beginning"]
 
 ## Change user
 USER test
